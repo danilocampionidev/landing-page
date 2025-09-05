@@ -1,4 +1,4 @@
-// PROJECTS.TSX (ajuste de alinhamento dos ícones em "Características principais")
+// PROJECTS.TSX (Glow pulsante automático baseado em borderColor)
 
 "use client";
 import { useState } from "react";
@@ -29,42 +29,63 @@ export default function Projects() {
       <div className="max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-12">
         {/* Coluna esquerda: lista de projetos */}
         <div className="flex flex-col gap-4 sm:gap-6">
-          {projects.map((p) => (
-            <motion.div
-              key={p.id}
-              onClick={() => setSelectedProject(p)}
-              whileHover={{ scale: 1.02 }}
-              className={`p-4 rounded-xl cursor-pointer transition-all duration-300 border 
-                ${
+          {projects.map((p) => {
+            // Extrair cor para o glow do Tailwind
+            const glowColor = p.borderColor.replace("border-", "");
+
+            return (
+              <motion.div
+                key={p.id}
+                onClick={() => setSelectedProject(p)}
+                whileHover={{ scale: 1.02 }}
+                animate={
                   selectedProject.id === p.id
-                    ? "border-cyan-400 bg-gray-800/60 shadow-lg"
-                    : "border-gray-700/40 bg-gray-800/30"
-                }`}
-            >
-              <div className="flex justify-between items-center mb-2">
-                <h3 className="font-semibold">{p.title}</h3>
-                <span className="text-sm text-gray-400">{p.year}</span>
-              </div>
-              <p className="text-gray-300 text-sm line-clamp-2">
-                {p.description}
-              </p>
-              <div className="flex flex-wrap gap-2 mt-3">
-                {p.technologies.slice(0, 3).map((tech, i) => (
-                  <span
-                    key={i}
-                    className="text-xs bg-gray-700/60 px-2 py-1 rounded-md"
-                  >
-                    {tech}
-                  </span>
-                ))}
-                {p.technologies.length > 3 && (
-                  <span className="text-xs text-gray-400">
-                    +{p.technologies.length - 3}
-                  </span>
-                )}
-              </div>
-            </motion.div>
-          ))}
+                    ? {
+                        boxShadow: [
+                          `0 0 20px theme(colors.${glowColor})`,
+                          `0 0 35px theme(colors.${glowColor})`,
+                          `0 0 20px theme(colors.${glowColor})`,
+                        ],
+                      }
+                    : { boxShadow: "0 0 0px transparent" }
+                }
+                transition={{
+                  duration: 1.5,
+                  repeat: Infinity,
+                  repeatType: "loop",
+                }}
+                className={`p-4 rounded-xl cursor-pointer transition-all duration-300 border
+                  ${
+                    selectedProject.id === p.id
+                      ? `${p.borderColor} bg-gray-800/60`
+                      : "border-gray-700/40 bg-gray-800/30"
+                  }`}
+              >
+                <div className="flex justify-between items-center mb-2">
+                  <h3 className="font-semibold">{p.title}</h3>
+                  <span className="text-sm text-gray-400">{p.year}</span>
+                </div>
+                <p className="text-gray-300 text-sm line-clamp-2">
+                  {p.description}
+                </p>
+                <div className="flex flex-wrap gap-2 mt-3">
+                  {p.technologies.slice(0, 3).map((tech, i) => (
+                    <span
+                      key={i}
+                      className="text-xs bg-gray-700/60 px-2 py-1 rounded-md"
+                    >
+                      {tech}
+                    </span>
+                  ))}
+                  {p.technologies.length > 3 && (
+                    <span className="text-xs text-gray-400">
+                      +{p.technologies.length - 3}
+                    </span>
+                  )}
+                </div>
+              </motion.div>
+            );
+          })}
         </div>
 
         {/* Coluna direita: detalhes do projeto selecionado */}
@@ -75,16 +96,16 @@ export default function Projects() {
             animate={{ opacity: 1, x: 0 }}
             exit={{ opacity: 0, x: -30 }}
             transition={{ duration: 0.4 }}
-            className="bg-gray-800 rounded-2xl shadow-xl p-6 grid grid-cols-1 md:grid-cols-2 gap-6"
+            className="bg-gray-800 rounded-2xl shadow-xl p-6 grid grid-cols-1 md:grid-cols-2 gap-6 items-start"
           >
-            {/* Coluna esquerda: Imagem */}
-            <div className="rounded-lg overflow-hidden border border-gray-700 flex items-center justify-center">
+            {/* Coluna esquerda: Imagem (card ajusta EXACTAMENTE ao tamanho da imagem, sem espaço vazio) */}
+            <div className="rounded-lg overflow-hidden border border-gray-700 self-start">
               <Image
                 src={selectedProject.imageSrc}
                 alt={selectedProject.title}
                 width={500}
                 height={500}
-                className="object-cover w-full h-full"
+                className="object-contain w-full h-auto"
               />
             </div>
 
