@@ -5,58 +5,95 @@ import { testimonials } from "../data/testimonials";
 
 export default function TestimonialsAnimatedLine() {
   const [currentIndex, setCurrentIndex] = useState(0);
-  const [manualPause, setManualPause] = useState(false);
+  const [isMobile, setIsMobile] = useState(false);
   const total = testimonials.length;
-  const intervalRef = useRef<NodeJS.Timeout | null>(null);
+  const timerRef = useRef<NodeJS.Timeout | null>(null);
 
-  // Função para iniciar ou reiniciar o intervalo
-  const startInterval = (duration: number) => {
-    if (intervalRef.current) clearInterval(intervalRef.current);
-    intervalRef.current = setInterval(() => {
+  // Detecta se é mobile
+  useEffect(() => {
+    const handleResize = () => setIsMobile(window.innerWidth < 768);
+    handleResize();
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
+  }, []);
+
+  const startAutoLoop = (delay = 5000) => {
+    if (timerRef.current) clearInterval(timerRef.current);
+    timerRef.current = setInterval(() => {
       setCurrentIndex((prev) => (prev + 1) % total);
-      setManualPause(false);
-    }, duration);
+    }, delay);
   };
 
+  // Inicializa loop automático
   useEffect(() => {
-    startInterval(5000); // padrão 5s
-    return () => {
-      if (intervalRef.current) clearInterval(intervalRef.current);
-    };
+    startAutoLoop();
+    return () => timerRef.current && clearInterval(timerRef.current);
   }, [total]);
 
   const handleClick = (index: number) => {
     setCurrentIndex(index);
-    setManualPause(true);
-    startInterval(7000); // tempo extra de 7s ao clicar
+    // Quando usuário clica, dá tempo extra antes de continuar o loop
+    startAutoLoop(8000); // 8s apenas para card clicado
   };
 
   const getPosition = (index: number) => {
     const diff = (index - currentIndex + total) % total;
-    switch (diff) {
-      case 0:
-        return "main";
-      case 1:
-        return "upper1";
-      case 2:
-        return "lower1";
-      case 3:
-        return "upper2";
-      case 4:
-        return "lower2";
+
+    if (isMobile) {
+      switch (diff) {
+        case 0:
+          return "main";
+        case 1:
+          return "lower1";
+        case total - 1:
+          return "upper1";
+        default:
+          return "hidden";
+      }
+    } else {
+      switch (diff) {
+        case 0:
+          return "main";
+        case 1:
+          return "upper1";
+        case 2:
+          return "lower1";
+        case 3:
+          return "upper2";
+        case 4:
+          return "lower2";
+        default:
+          return "hidden";
+      }
+    }
+  };
+
+  const getStyle = (pos: string) => {
+    switch (pos) {
+      case "main":
+        return { scale: 1, opacity: 1, y: 0, filter: "blur(0px)", zIndex: 6 };
+      case "upper1":
+        return { scale: isMobile ? 0.85 : 0.85, opacity: 0.7, y: isMobile ? -60 : -80, filter: "blur(1px)", zIndex: 5 };
+      case "lower1":
+        return { scale: isMobile ? 0.85 : 0.85, opacity: 0.7, y: isMobile ? 60 : 80, filter: "blur(1px)", zIndex: 4 };
+      case "upper2":
+        return { scale: 0.7, opacity: 0.5, y: -160, filter: "blur(2px)", zIndex: 3 };
+      case "lower2":
+        return { scale: 0.7, opacity: 0.5, y: 160, filter: "blur(2px)", zIndex: 2 };
       default:
-        return "hidden";
+        return { opacity: 0, zIndex: 0 };
     }
   };
 
   return (
     <section className="relative w-full py-20 px-6 lg:px-16 text-white bg-gray-950">
-      <div className="text-center mb-12 z-10 relative">
-        <h2 className="text-3xl font-bold">
-          O que dizem sobre meu <span className="text-cyan-400">trabalho</span>
-        </h2>
-        <div className="w-20 h-1 bg-cyan-400 mx-auto mt-3 rounded-full"></div>
-      </div>
+<div className="text-center mb-12 z-10 relative">
+  <h2 className="text-3xl sm:text-4xl font-extrabold text-gray-100">
+    O que dizem sobre meu <span className="text-cyan-400">trabalho</span>
+  </h2>
+  <div className="w-20 h-1 bg-cyan-400 mx-auto mt-3 rounded-full"></div>
+</div>
+
 
       {/* Container dos cards com margin-top maior */}
       <div className="relative max-w-4xl mx-auto flex flex-col items-center mt-48 h-[600px] overflow-visible">
@@ -65,31 +102,7 @@ export default function TestimonialsAnimatedLine() {
             const pos = getPosition(i);
             if (pos === "hidden") return null;
 
-            let style = {};
-            let zIndex = 0;
-
-            switch (pos) {
-              case "main":
-                style = { scale: 1, opacity: 1, y: 0, filter: "blur(0px)" };
-                zIndex = 6;
-                break;
-              case "upper1":
-                style = { scale: 0.85, opacity: 0.7, y: -80, filter: "blur(1px)" };
-                zIndex = 5;
-                break;
-              case "lower1":
-                style = { scale: 0.85, opacity: 0.7, y: 80, filter: "blur(1px)" };
-                zIndex = 4;
-                break;
-              case "upper2":
-                style = { scale: 0.7, opacity: 0.5, y: -160, filter: "blur(2px)" };
-                zIndex = 3;
-                break;
-              case "lower2":
-                style = { scale: 0.7, opacity: 0.5, y: 160, filter: "blur(2px)" };
-                zIndex = 2;
-                break;
-            }
+            const style = getStyle(pos);
 
             return (
               <motion.div
@@ -97,8 +110,8 @@ export default function TestimonialsAnimatedLine() {
                 initial={{ opacity: 0, y: 30 }}
                 animate={{ ...style }}
                 exit={{ opacity: 0 }}
-                transition={{ duration: 0.5 }}
-                style={{ zIndex }}
+                transition={{ duration: 0.5, ease: "easeInOut" }}
+                style={{ zIndex: style.zIndex }}
                 className="absolute w-full cursor-pointer"
                 onClick={() => handleClick(i)}
               >
@@ -109,6 +122,7 @@ export default function TestimonialsAnimatedLine() {
                       pos === "main"
                         ? "0 0 20px rgba(6, 182, 212, 0.6)"
                         : "0 5px 15px rgba(0,0,0,0.2)",
+                    willChange: "transform, opacity, filter",
                   }}
                 >
                   <div className="flex items-center mb-2 z-10 relative">
