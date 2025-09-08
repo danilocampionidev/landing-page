@@ -5,26 +5,16 @@ import { testimonials } from "../data/testimonials";
 
 export default function TestimonialsAnimatedLine() {
   const [currentIndex, setCurrentIndex] = useState(0);
-  const [isMobile, setIsMobile] = useState(false);
   const total = testimonials.length;
   const timerRef = useRef<NodeJS.Timeout | null>(null);
-
-  // Detecta se é mobile
-  useEffect(() => {
-    const handleResize = () => setIsMobile(window.innerWidth < 768);
-    handleResize();
-    window.addEventListener("resize", handleResize);
-    return () => window.removeEventListener("resize", handleResize);
-  }, []);
 
   const startAutoLoop = (delay = 5000) => {
     if (timerRef.current) clearInterval(timerRef.current);
     timerRef.current = setInterval(() => {
-      setCurrentIndex((prev) => (prev + 1) % total);
+      setCurrentIndex((prev) => (prev - 1 + total) % total);
     }, delay);
   };
 
-  // Inicializa loop automático
   useEffect(() => {
     startAutoLoop();
     return () => timerRef.current && clearInterval(timerRef.current);
@@ -32,71 +22,86 @@ export default function TestimonialsAnimatedLine() {
 
   const handleClick = (index: number) => {
     setCurrentIndex(index);
-    // Quando usuário clica, dá tempo extra antes de continuar o loop
-    startAutoLoop(8000); // 8s apenas para card clicado
+    startAutoLoop(8000); // 8s para o card clicado
   };
 
   const getPosition = (index: number) => {
-    const diff = (index - currentIndex + total) % total;
+    const diff = (currentIndex - index + total) % total;
 
-    if (isMobile) {
-      switch (diff) {
-        case 0:
-          return "main";
-        case 1:
-          return "lower1";
-        case total - 1:
-          return "upper1";
-        default:
-          return "hidden";
-      }
-    } else {
-      switch (diff) {
-        case 0:
-          return "main";
-        case 1:
-          return "upper1";
-        case 2:
-          return "lower1";
-        case 3:
-          return "upper2";
-        case 4:
-          return "lower2";
-        default:
-          return "hidden";
-      }
+    switch (diff) {
+      case 0:
+        return "main";
+      case 1:
+        return "lower1";
+      case 2:
+        return "upper1";
+      case 3:
+        return "lower2";
+      case 4:
+        return "upper2";
+      default:
+        return "hidden";
     }
   };
 
   const getStyle = (pos: string) => {
     switch (pos) {
       case "main":
-        return { scale: 1, opacity: 1, y: 0, filter: "blur(0px)", zIndex: 6 };
+        return { scale: 1, opacity: 1, y: 8, filter: "blur(0px)", zIndex: 6 };
       case "upper1":
-        return { scale: isMobile ? 0.85 : 0.85, opacity: 0.7, y: isMobile ? -60 : -80, filter: "blur(1px)", zIndex: 5 };
+        return {
+          scale: 0.85,
+          opacity: 0.7,
+          y: -80,
+          filter: "blur(1px)",
+          zIndex: 5,
+        };
       case "lower1":
-        return { scale: isMobile ? 0.85 : 0.85, opacity: 0.7, y: isMobile ? 60 : 80, filter: "blur(1px)", zIndex: 4 };
+        return {
+          scale: 0.85,
+          opacity: 0.7,
+          y: 80,
+          filter: "blur(1px)",
+          zIndex: 4,
+        };
       case "upper2":
-        return { scale: 0.7, opacity: 0.5, y: -160, filter: "blur(2px)", zIndex: 3 };
+        return {
+          scale: 0.7,
+          opacity: 0.5,
+          y: -160,
+          filter: "blur(2px)",
+          zIndex: 3,
+        };
       case "lower2":
-        return { scale: 0.7, opacity: 0.5, y: 160, filter: "blur(2px)", zIndex: 2 };
+        return {
+          scale: 0.7,
+          opacity: 0.5,
+          y: 160,
+          filter: "blur(2px)",
+          zIndex: 2,
+        };
       default:
         return { opacity: 0, zIndex: 0 };
     }
   };
 
+  const containerHeight = 400;
+
   return (
     <section className="relative w-full py-20 px-6 lg:px-16 text-white bg-gray-950">
-<div className="text-center mb-12 z-10 relative">
-  <h2 className="text-3xl sm:text-4xl font-extrabold text-gray-100">
-    O que dizem sobre meu <span className="text-cyan-400">trabalho</span>
-  </h2>
-  <div className="w-20 h-1 bg-cyan-400 mx-auto mt-3 rounded-full"></div>
-</div>
+      {/* Título */}
+      <div className="text-center mb-12 z-10 relative">
+        <h2 className="text-3xl sm:text-4xl font-extrabold text-gray-100">
+          O que dizem sobre meu <span className="text-cyan-400">trabalho</span>
+        </h2>
+        <div className="w-20 h-1 bg-cyan-400 mx-auto mt-3 rounded-full"></div>
+      </div>
 
-
-      {/* Container dos cards com margin-top maior */}
-      <div className="relative max-w-4xl mx-auto flex flex-col items-center mt-48 h-[600px] overflow-visible">
+      {/* Container dos cards */}
+      <div
+        className="relative max-w-4xl mx-auto"
+        style={{ height: containerHeight, marginBottom: 12, marginTop: 200 }}
+      >
         <AnimatePresence initial={false}>
           {testimonials.map((t, i) => {
             const pos = getPosition(i);
@@ -111,8 +116,8 @@ export default function TestimonialsAnimatedLine() {
                 animate={{ ...style }}
                 exit={{ opacity: 0 }}
                 transition={{ duration: 0.5, ease: "easeInOut" }}
-                style={{ zIndex: style.zIndex }}
-                className="absolute w-full cursor-pointer"
+                style={{ zIndex: style.zIndex, position: "absolute", width: "100%" }}
+                className="cursor-pointer"
                 onClick={() => handleClick(i)}
               >
                 <div
