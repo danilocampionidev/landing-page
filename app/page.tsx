@@ -5,7 +5,8 @@ import Technologies from "./components/Technologies";
 import Services from "./components/Services";
 import Projects from "./components/Projects";
 import Testimonials from "./components/Testimonials";
-import ProjectSteps from "./components/ProjectSteps";
+import ProjectStepsDesktop from "./components/ProjectSteps_Desktop";
+import ProjectStepsMobile from "./components/ProjectSteps_Mobile";
 import About from "./components/About";
 import Pricing from "./components/Pricing";
 import Contact from "./components/Contact";
@@ -61,7 +62,8 @@ export default function LandingPage() {
       <Services />
       <Projects />
       <Testimonials />
-      <ProjectSteps />
+      <ProjectStepsMobile />
+      <ProjectStepsDesktop />
       <About />
       <Pricing />
       <Contact />
