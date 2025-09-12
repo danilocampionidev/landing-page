@@ -143,7 +143,8 @@ const getTimelineGradient = () => {
 };
 
   return (
-    <section className="py-12 px-6 bg-[#0b0f17] relative">
+    <section className="py-12 px-6 bg-gradient-to-b from-gray-950 via-gray-900 to-gray-950 relative">
+
       {/* Ajuste da margem inferior menor em mobile */}
       <h2 className="text-3xl sm:text-4xl font-extrabold text-gray-100 text-center mb 10 sm:mb-20">
         Etapas Do <span className="text-cyan-400">Projeto</span>
