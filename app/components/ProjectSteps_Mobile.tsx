@@ -264,31 +264,33 @@ const getTimelineGradient = () => {
                       <path d="M0 0 L10 12 L20 0 Z" fill="url(#arrowGradient)" />
                     </motion.svg>
 
-                    <motion.div
-                      key={activeStep}
-                      className="absolute z-20"
-                      style={{
-                        top: cardTop,
-                        left: isMobile
-                          ? Math.min(
-                              Math.max(
-                                positions[activeStep].centerX -
-                                  containerRef.current!.offsetWidth * 0.45,
-                                8
-                              ),
-                              containerRef.current!.offsetWidth -
-                                containerRef.current!.offsetWidth * 0.9 -
-                                8
-                            )
-                          : Math.min(
-                              Math.max(positions[activeStep].centerX - 160, 0),
-                              containerRef.current!.offsetWidth - 320
-                            ),
-                        width: isMobile ? "90%" : 320,
-                        padding: isMobile ? "0.75rem 1rem" : undefined,
-                        borderColor: step.borderColor,
-                      }}
-                    >
+<motion.div
+  key={activeStep}
+  className="absolute z-20"
+  style={{
+    top: cardTop,
+    left: isMobile
+      ? Math.min(
+          Math.max(
+            positions[activeStep].centerX - containerRef.current!.offsetWidth * 0.45,
+            8
+          ),
+          containerRef.current!.offsetWidth - containerRef.current!.offsetWidth * 0.9 - 8
+        )
+      : Math.min(
+          Math.max(positions[activeStep].centerX - 160, 0),
+          containerRef.current!.offsetWidth - 320
+        ),
+    width: isMobile ? "90%" : 320,
+    padding: isMobile ? "0.75rem 1rem" : undefined,
+    borderColor: step.borderColor,
+  }}
+  initial={{ opacity: 0, y: 10, scale: 0.95 }}
+  animate={{ opacity: 1, y: 0, scale: 1 }}
+  exit={{ opacity: 0, y: 10, scale: 0.95 }}
+  transition={{ duration: 0.3, ease: "easeInOut" }}
+>
+
                       <div
                         className={`bg-[#1f2937] rounded-xl shadow-xl text-gray-200 backdrop-blur-sm border ${
                           isMobile ? "p-4" : "p-6"
