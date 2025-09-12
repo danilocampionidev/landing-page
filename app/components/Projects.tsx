@@ -1,5 +1,3 @@
-// PROJECTS.TSX (Glow pulsante automático baseado em borderColor)
-
 "use client";
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
@@ -7,13 +5,19 @@ import Image from "next/image";
 import { projects } from "../data/projects";
 import { CheckCircle } from "lucide-react";
 
+const tailwindColorsHex: Record<string, string> = {
+  "border-cyan-500": "#06b6d4",
+  "border-pink-400": "#f472b6",
+  "border-yellow-400": "#facc15",
+};
+
 export default function Projects() {
   const [selectedProject, setSelectedProject] = useState(projects[0]);
 
   return (
     <section
       id="projetos"
-      className="py-20 px-4 sm:px-6 lg:px-16 bg-gray-900 text-white"
+      className="py-20 px-4 sm:px-6 lg:px-16 bg-gray-900 text-white select-none"
     >
       {/* Título */}
       <div className="max-w-7xl mx-auto text-center mb-12">
@@ -30,36 +34,20 @@ export default function Projects() {
         {/* Coluna esquerda: lista de projetos */}
         <div className="flex flex-col gap-4 sm:gap-6">
           {projects.map((p) => {
-            // Extrair cor para o glow do Tailwind
-            const glowColor = p.borderColor.replace("border-", "");
+            const glowColorHex = tailwindColorsHex[p.borderColor] || "#22d3ee";
 
             return (
               <motion.div
                 key={p.id}
                 onClick={() => setSelectedProject(p)}
-                whileHover={{ scale: 1.02 }}
-                animate={
-                  selectedProject.id === p.id
-                    ? {
-                        boxShadow: [
-                          `0 0 20px theme(colors.${glowColor})`,
-                          `0 0 35px theme(colors.${glowColor})`,
-                          `0 0 20px theme(colors.${glowColor})`,
-                        ],
-                      }
-                    : { boxShadow: "0 0 0px transparent" }
-                }
-                transition={{
-                  duration: 1.5,
-                  repeat: Infinity,
-                  repeatType: "loop",
+                whileHover={{
+                  boxShadow: `0 0 12px ${glowColorHex}`,
                 }}
-                className={`p-4 rounded-xl cursor-pointer transition-all duration-300 border
-                  ${
-                    selectedProject.id === p.id
-                      ? `${p.borderColor} bg-gray-800/60`
-                      : "border-gray-700/40 bg-gray-800/30"
-                  }`}
+                className={`p-4 rounded-xl cursor-pointer transition-all duration-300 border ${
+                  selectedProject.id === p.id
+                    ? `${p.borderColor} bg-gray-800/60`
+                    : "border-gray-700/40 bg-gray-800/30"
+                }`}
               >
                 <div className="flex justify-between items-center mb-2">
                   <h3 className="font-semibold">{p.title}</h3>
@@ -96,9 +84,9 @@ export default function Projects() {
             animate={{ opacity: 1, x: 0 }}
             exit={{ opacity: 0, x: -30 }}
             transition={{ duration: 0.4 }}
-            className="bg-gray-800 rounded-2xl shadow-xl p-6 grid grid-cols-1 md:grid-cols-2 gap-6 items-start"
+            className={`rounded-2xl shadow-xl p-6 grid grid-cols-1 md:grid-cols-2 gap-6 items-start border-2 ${selectedProject.borderColor}`}
           >
-            {/* Coluna esquerda: Imagem (card ajusta EXACTAMENTE ao tamanho da imagem, sem espaço vazio) */}
+            {/* Imagem */}
             <div className="rounded-lg overflow-hidden border border-gray-700 self-start">
               <Image
                 src={selectedProject.imageSrc}
@@ -109,7 +97,7 @@ export default function Projects() {
               />
             </div>
 
-            {/* Coluna direita: Conteúdo */}
+            {/* Conteúdo */}
             <div className="flex flex-col">
               <div className="flex justify-between items-center mb-2">
                 <h3 className="text-xl font-semibold">
@@ -121,7 +109,6 @@ export default function Projects() {
               </div>
               <p className="text-gray-300">{selectedProject.description}</p>
 
-              {/* Características principais */}
               {selectedProject.features?.length > 0 && (
                 <div className="mt-4">
                   <h4 className="font-semibold text-cyan-400 mb-2">
@@ -141,7 +128,6 @@ export default function Projects() {
                 </div>
               )}
 
-              {/* Tecnologias */}
               <div className="mt-4">
                 <h4 className="font-semibold text-cyan-400 mb-2">
                   Tecnologias utilizadas:
