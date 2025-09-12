@@ -63,7 +63,6 @@ export default function LandingPage() {
       <Projects />
       <Testimonials />
       <ProjectStepsMobile />
-      <ProjectStepsDesktop />
       <About />
       <Pricing />
       <Contact />
