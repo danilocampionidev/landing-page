@@ -8,6 +8,10 @@ export default function TestimonialsAnimatedLine() {
   const total = testimonials.length;
   const timerRef = useRef<NodeJS.Timeout | null>(null);
 
+  const [containerHeight, setContainerHeight] = useState(280);
+  const [containerMarginTop, setContainerMarginTop] = useState(140);
+  const [containerMarginBottom, setContainerMarginBottom] = useState(28);
+
   const startAutoLoop = (delay = 5000) => {
     if (timerRef.current) clearInterval(timerRef.current);
     timerRef.current = setInterval(() => {
@@ -20,9 +24,35 @@ export default function TestimonialsAnimatedLine() {
     return () => timerRef.current && clearInterval(timerRef.current);
   }, [total]);
 
+  useEffect(() => {
+    function handleResize() {
+      const width = window.innerWidth;
+      if (width >= 1024) {
+        // Desktop
+        setContainerHeight(280);
+        setContainerMarginTop(140);
+        setContainerMarginBottom(28);
+      } else if (width >= 640) {
+        // Tablet
+        setContainerHeight(210);
+        setContainerMarginTop(110); // aumentei de 90 para 110 para dar mais espaço
+        setContainerMarginBottom(20);
+      } else {
+        // Mobile
+        setContainerHeight(160);
+        setContainerMarginTop(90);  // aumentei de 60 para 90 para evitar invasão no título
+        setContainerMarginBottom(40); // aumentei marginBottom para espaçar mais o final da seção
+      }
+    }
+
+    handleResize(); // initial call
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
+  }, []);
+
   const handleClick = (index: number) => {
     setCurrentIndex(index);
-    startAutoLoop(8000); // 8s para o card clicado
+    startAutoLoop(8000);
   };
 
   const getPosition = (index: number) => {
@@ -47,36 +77,36 @@ export default function TestimonialsAnimatedLine() {
   const getStyle = (pos: string) => {
     switch (pos) {
       case "main":
-        return { scale: 1, opacity: 1, y: 8, filter: "blur(0px)", zIndex: 6 };
+        return { scale: 0.85, opacity: 1, y: 6, filter: "blur(0px)", zIndex: 6 };
       case "upper1":
         return {
-          scale: 0.85,
+          scale: 0.7,
           opacity: 0.7,
-          y: -80,
+          y: -60,
           filter: "blur(1px)",
           zIndex: 5,
         };
       case "lower1":
         return {
-          scale: 0.85,
+          scale: 0.7,
           opacity: 0.7,
-          y: 80,
+          y: 60,
           filter: "blur(1px)",
           zIndex: 4,
         };
       case "upper2":
         return {
-          scale: 0.7,
+          scale: 0.55,
           opacity: 0.5,
-          y: -160,
+          y: -120,
           filter: "blur(2px)",
           zIndex: 3,
         };
       case "lower2":
         return {
-          scale: 0.7,
+          scale: 0.55,
           opacity: 0.5,
-          y: 160,
+          y: 120,
           filter: "blur(2px)",
           zIndex: 2,
         };
@@ -85,22 +115,25 @@ export default function TestimonialsAnimatedLine() {
     }
   };
 
-  const containerHeight = 400;
-
   return (
-    <section className="relative w-full py-20 px-6 lg:px-16 text-white bg-gray-950">
-      {/* Título */}
+    <section
+      className="relative w-full py-20 px-6 lg:px-16 text-white bg-gray-950 select-none"
+      style={{ paddingBottom: 100 }} // aumentei o paddingBottom para mais espaço no final
+    >
       <div className="text-center mb-12 z-10 relative">
-        <h2 className="text-3xl sm:text-4xl font-extrabold text-gray-100">
+        <h2 className="text-3xl sm:text-4xl font-extrabold text-gray-100 leading-tight">
           O que dizem sobre meu <span className="text-cyan-400">trabalho</span>
         </h2>
         <div className="w-20 h-1 bg-cyan-400 mx-auto mt-3 rounded-full"></div>
       </div>
 
-      {/* Container dos cards */}
       <div
         className="relative max-w-4xl mx-auto"
-        style={{ height: containerHeight, marginBottom: 12, marginTop: 200 }}
+        style={{
+          height: containerHeight,
+          marginBottom: containerMarginBottom,
+          marginTop: containerMarginTop,
+        }}
       >
         <AnimatePresence initial={false}>
           {testimonials.map((t, i) => {
@@ -121,7 +154,7 @@ export default function TestimonialsAnimatedLine() {
                 onClick={() => handleClick(i)}
               >
                 <div
-                  className={`bg-gray-800 rounded-2xl p-6 shadow-md border border-gray-700 flex flex-col items-start relative`}
+                  className={`bg-gray-800 rounded-2xl p-4 shadow-md border border-gray-700 flex flex-col items-start relative`}
                   style={{
                     boxShadow:
                       pos === "main"
@@ -134,14 +167,14 @@ export default function TestimonialsAnimatedLine() {
                     <img
                       src={t.photo}
                       alt={t.name}
-                      className="w-16 h-16 rounded-full object-cover border-2 border-cyan-400 mr-4 flex-shrink-0 z-20"
+                      className="w-12 h-12 rounded-full object-cover border-2 border-cyan-400 mr-3 flex-shrink-0 z-20"
                     />
                     <div className="flex">
                       {[...Array(5)].map((_, index) => (
                         <svg
                           key={index}
                           xmlns="http://www.w3.org/2000/svg"
-                          className="h-5 w-5 text-yellow-400"
+                          className="h-4 w-4 text-yellow-400"
                           viewBox="0 0 20 20"
                           fill="currentColor"
                         >
@@ -151,12 +184,14 @@ export default function TestimonialsAnimatedLine() {
                     </div>
                   </div>
 
-                  <p className="italic text-gray-300 mb-3 z-10 relative">“{t.text}”</p>
+                  <p className="italic text-gray-300 mb-3 z-10 relative text-xs sm:text-sm leading-snug">
+                    “{t.text}”
+                  </p>
 
                   <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between z-10 relative">
                     <div>
-                      <h4 className="font-semibold text-white">{t.name}</h4>
-                      <p className="text-gray-400 text-sm">
+                      <h4 className="font-semibold text-white text-sm sm:text-base">{t.name}</h4>
+                      <p className="text-gray-400 text-xs sm:text-xs">
                         {t.role} • {t.date}
                       </p>
                     </div>
